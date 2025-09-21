@@ -375,7 +375,7 @@ async function addConstituencies(sourceData,name){
         fillOpacity: 0.1};
       },
       filter: function(feature){
-        if (feature.geometry.type == "Polygon") return true;
+        if (feature.geometry.type == "Polygon" || feature.geometry.type == "MultiPolygon") return true;
       }
   })
   routeLayer.bindTooltip(function (layer) {
