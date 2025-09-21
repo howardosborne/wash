@@ -1,0 +1,19 @@
+#map {
+  width: 100%;
+  height: 100vh;
+  border: 1px solid #1f1412;
+}
+
+@media all and (min-width: 1024px) {
+  #map {
+    height: 768px;
+    width: 100%;
+  }
+}
+path.leaflet-interactive{
+  outline: none;
+}
+.waterbody {color: rgb(100, 150, 250);}
+.wcp {color: rgb(150, 150, 150);}
+.cameo {color: rgb(125, 200, 150);}
+.ubocp {color: rgb(1, 100, 100);}
