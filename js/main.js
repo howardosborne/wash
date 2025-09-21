@@ -181,7 +181,7 @@ async function getRainfallData(){
 
 function _rainfallMarkerOnClick(e){
     let output = `
-    <h6>${e.sourceTarget.properties.station_name}</h6>
+    <h6>Rainfall station: ${e.sourceTarget.properties.station_name}</h6>
                     <ul class="list-group list-group-flush">
 				        <li class="list-group-item">"value": ${e.sourceTarget.properties.value}</li>
 				        <li class="list-group-item">"value_timestamp": ${e.sourceTarget.properties.value_timestamp}</li>
@@ -243,14 +243,14 @@ async function getStationData(){
 
 function _catchmentMarkerOnClick(e){
     let uri = e.layer.feature.properties.uri; 
-    document.getElementById("toast-body").innerHTML	= `<a href="${uri.replace("/so/","/")}" target="_blank" class="card-link">${e.layer.feature.properties.name}</a>`;
+    document.getElementById("toast-body").innerHTML	= `<h5>Management Catchment</h5><a href="${uri.replace("/so/","/")}" target="_blank" class="card-link">${e.layer.feature.properties.name}</a>`;
     const toastElement = document.getElementById('liveToast');
     const toast = bootstrap.Toast.getOrCreateInstance(toastElement);
     toast.show();  
 }
 
 function _stationMarkerOnClick(e){
-    let output = `<h6>${e.sourceTarget.properties.label}</h6>`;
+    let output = `<h6>Flood monitoring station: ${e.sourceTarget.properties.label}</h6>`;
     
     e.sourceTarget.properties.measures.forEach(measure =>{
         output += `<ul class="list-group list-group-flush">
@@ -469,7 +469,7 @@ function loadMap(){
     addConstituencies(`./data/west.geojson`,"Westminster Parliamentary Constituencies")
     //getBetaCSOInfo();
     //getLatestCSOInfo();
-    //getStationData();
+    getStationData();
     getRainfallData();
     //map.fitBounds(geo.getBounds());
 }
