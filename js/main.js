@@ -469,7 +469,7 @@ function loadMap(){
     addConstituencies(`./data/west.geojson`,"Westminster Parliamentary Constituencies")
     //getBetaCSOInfo();
     //getLatestCSOInfo();
-    getStationData();
-    //getRainfallData();
+    //getStationData();
+    getRainfallData();
     //map.fitBounds(geo.getBounds());
 }
