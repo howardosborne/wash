@@ -361,7 +361,31 @@ async function addWaterbody(sourceData,name){
     layerControl.addOverlay(catchmentLayer, lookup[name].name);
     catchmentLayer.addTo(map);
 }
+async function addAuthorities(sourceData,name){
+  const response = await fetch(sourceData);
+  const data = await response.json();
 
+  let routeLayer = L.geoJSON(data, {
+      style: function (feature) {
+          return {fillColor: "rgb(79, 34, 100)",
+        weight: 2,
+        opacity: 0.5,
+        color: "rgb(79, 34, 100)",  //Outline color
+        fillOpacity: 0.1};
+      },
+      filter: function(feature){
+        if (feature.geometry.type == "Polygon" || feature.geometry.type == "MultiPolygon") return true;
+      }
+  })
+  routeLayer.bindTooltip(function (layer) {
+      let pop = `Authority: ${layer.feature.properties.LAD24NM}`;
+      return pop;
+  })
+  routeLayer.addEventListener('click', _authorityOnClick);
+  routeLayer.eachLayer(lay=> {polys.push(lay)});
+  layerControl.addOverlay(routeLayer, name);
+  routeLayer.addTo(map);
+}
 async function addConstituencies(sourceData,name){
   const response = await fetch(sourceData);
   const data = await response.json();
@@ -371,7 +395,7 @@ async function addConstituencies(sourceData,name){
           return {fillColor: 'green',
         weight: 2,
         opacity: 0.5,
-        color: 'black',  //Outline color
+        color: 'green',  //Outline color
         fillOpacity: 0.1};
       },
       filter: function(feature){
@@ -379,7 +403,7 @@ async function addConstituencies(sourceData,name){
       }
   })
   routeLayer.bindTooltip(function (layer) {
-      let pop = `${layer.feature.properties.PCON24NM}`;
+      let pop = `Constituency: ${layer.feature.properties.PCON24NM}`;
       return pop;
   })
   routeLayer.addEventListener('click', _constituencyOnClick);
@@ -401,7 +425,7 @@ async function addLine(sourceData,name){
       }
   })
   routeLayer.bindTooltip(function (layer) {
-      let pop = `${layer.feature.properties.name}`;
+      let pop = `Waterbody: ${layer.feature.properties.name}`;
       return pop;
   })
   routeLayer.addEventListener('click', _lineOnClick);
@@ -418,24 +442,20 @@ var lookup = {
 }
 
 function _constituencyOnClick(e){
-  if(e.sourceTarget.feature.properties.image){
-  popup_text = `
-    <div class="card mb-3">
-     <img src="${e.sourceTarget.feature.properties.image}" class="img-fluid rounded-start" style="max-height:250px" alt="${e.sourceTarget.feature.properties.name}" title = "${e.sourceTarget.feature.properties.name}">
-     <div class="card-img-overlay">
-       <div class="row justify-content-evenly"><div class="col"><a href="${e.sourceTarget.feature.properties.link}" class="h3" style="font-family: 'Cantora One', Arial; font-weight: 700; vertical-align: baseline; color:white; text-shadow:-1px 1px 0 #000, 1px 1px 0 #000; ">${e.sourceTarget.feature.properties.name}</a></div><div class="col-3"></div></div>
-     </div>
-     <ul class="list-group list-group-flush">
-      <li class="list-group-item"><b>Distance: ${decodeURIComponent(e.sourceTarget.feature.properties.distance)} km</b> ${decodeURIComponent(e.sourceTarget.feature.properties.description)} <a href="${e.sourceTarget.feature.properties.link}"> more...</a></li>
-     </ul>
-    </div>`
-  popup = L.popup().setLatLng([e.latlng.lat,e.latlng.lng]).setContent(popup_text).openOn(map); 
-  }
+    document.getElementById("toast-body").innerHTML	= `<h5>Constituency</h5><a href="https://members.parliament.uk/constituencies?SearchText=${e.layer.feature.properties.PCON24NM}" target="_blank" class="card-link">${e.layer.feature.properties.PCON24NM}</a>`;
+    const toastElement = document.getElementById('liveToast');
+    const toast = bootstrap.Toast.getOrCreateInstance(toastElement);
+    toast.show();  
 }
-
+function _authorityOnClick(e){
+    document.getElementById("toast-body").innerHTML	= `<h5>Authority</h5><p>${e.layer.feature.properties.LAD24NM}</p>`;
+    const toastElement = document.getElementById('liveToast');
+    const toast = bootstrap.Toast.getOrCreateInstance(toastElement);
+    toast.show();  
+}
 function _lineOnClick(e){
     let uri = e.layer.feature.properties.uri; 
-    document.getElementById("toast-body").innerHTML	= `<a href="${uri.replace("/so/","/")}" target="_blank" class="card-link">${e.layer.feature.properties.name}</a>`;
+    document.getElementById("toast-body").innerHTML	= `<h5>Waterbody</h5><a href="${uri.replace("/so/","/")}" target="_blank" class="card-link">${e.layer.feature.properties.name}</a>`;
     const toastElement = document.getElementById('liveToast');
     const toast = bootstrap.Toast.getOrCreateInstance(toastElement);
     toast.show();  
@@ -456,17 +476,18 @@ function loadMap(){
     }
     layerControl = L.control.layers(baseMaps).addTo(map);
     //addLine(`./data/GreatOuse.geojson`,"Great Ouse");
-    addLine(`./data/ubocp.geojson`,"Ouse Upper and Bedford MC");
-    addLine(`./data/cameo.geojson`,"Cam and Ely Ouse MC");
-    addLine(`./data/wcp.geojson`,"Old Bedford and Middle MC");
-    addLine(`./data/3059.geojson`,"Nene MC");
-    addLine(`./data/3065.geojson`,"North West Norfolk MC");
-    addLine(`./data/3112.geojson`,"Welland MC");
-    addLine(`./data/3156.geojson`,"Witham MC");
-    addLine(`./data/3288.geojson`,"Witham Lower MC"); 
-    addLine(`./data/3413.geojson`,"South Forty Foot Drain MC");
-    addLine(`./data/3508.geojson`,"Witham Upper MC");
+    addLine(`./data/ubocp.geojson`,"Ouse Upper and Bedford waterbodies");
+    addLine(`./data/cameo.geojson`,"Cam and Ely Ouse waterbodies");
+    addLine(`./data/wcp.geojson`,"Old Bedford and Middle waterbodies");
+    addLine(`./data/3059.geojson`,"Nene waterbodies");
+    addLine(`./data/3065.geojson`,"North West Norfolk waterbodies");
+    addLine(`./data/3112.geojson`,"Welland waterbodies");
+    addLine(`./data/3156.geojson`,"Witham waterbodies");
+    addLine(`./data/3288.geojson`,"Witham Lower waterbodies"); 
+    addLine(`./data/3413.geojson`,"South Forty Foot Drain waterbodies");
+    addLine(`./data/3508.geojson`,"Witham Upper waterbodies");
     addConstituencies(`./data/west.geojson`,"Westminster Parliamentary Constituencies")
+    addAuthorities(`./data/local_authority.geojson`,"Local Authorities")
     //getBetaCSOInfo();
     //getLatestCSOInfo();
     getStationData();
